@@ -16,7 +16,7 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
    
-  const userData  = JSON.parse(req.body);
+  const userData  = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
   const ingredients = userData.ingredients || [];
   const cookTime = userData.cookingTime || "30 minutes";
   const restrictions = userData.restrictions || [];

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
@@ -24,10 +23,9 @@ import {
   ChefHat,
   Clock,
   Users,
-  Heart,
-  Bookmark,
-  Share,
-  Edit,
+  Download,
+  Share2,
+  Copy,
   Wand2,
   Plus,
   X,
@@ -147,7 +145,6 @@ export default function GenerateWithAIPage() {
       restrictions: selectedRestrictions,
       servingSize: servingSize,
     };
-    console.log(JSON.stringify(userData));
     const fetchResponse = await fetch("/api/generateRecipe", {
       method: "POST",
       body: JSON.stringify(userData),
@@ -159,98 +156,6 @@ export default function GenerateWithAIPage() {
       return;
     }
 
-    // Mock generated recipes based on inputs
-    const mockRecipes: GeneratedRecipe[] = [
-      {
-        id: "1",
-        name: `AI-Crafted ${validIngredients[0]} Delight`,
-        description: `A perfectly balanced recipe featuring ${validIngredients
-          .slice(0, 3)
-          .join(", ")} with ${
-          selectedRestrictions.length > 0
-            ? selectedRestrictions.join(" & ") + " "
-            : ""
-        }considerations.`,
-        cookTime: selectedTime,
-        servings: servingSize,
-        difficulty:
-          parseInt(cookTime) <= 30
-            ? "Easy"
-            : parseInt(cookTime) <= 60
-            ? "Medium"
-            : "Hard",
-        ingredients: [
-          ...validIngredients.map((ing) => `1 cup ${ing.toLowerCase()}`),
-          "2 tbsp olive oil",
-          "Salt and pepper to taste",
-          "1 lemon, juiced",
-          "Fresh herbs for garnish",
-        ],
-        instructions: [
-          "Prepare all ingredients by washing and chopping as needed",
-          `Cook main ingredients for the appropriate time to fit ${selectedTime}`,
-          "Season with salt, pepper, and lemon juice",
-          "Combine all ingredients in a large bowl or pan",
-          "Cook until tender and flavors are well combined",
-          "Garnish with fresh herbs and serve immediately",
-        ],
-        tags: [...selectedRestrictions, "Quick & Easy", "AI-Generated"],
-        confidence: 94,
-      },
-      {
-        id: "2",
-        name: `Fusion ${validIngredients[0]} Bowl`,
-        description: `An innovative approach to cooking with ${validIngredients[0]} and complementary flavors.`,
-        cookTime: selectedTime,
-        servings: servingSize,
-        difficulty: "Easy",
-        ingredients: [
-          ...validIngredients
-            .slice(0, 4)
-            .map((ing) => `Fresh ${ing.toLowerCase()}`),
-          "1 tbsp sesame oil",
-          "2 cloves garlic, minced",
-          "1 tsp ginger, grated",
-          "Soy sauce to taste",
-          "Green onions for garnish",
-        ],
-        instructions: [
-          "Heat sesame oil in a large pan over medium heat",
-          "Add garlic and ginger, sauté for 30 seconds",
-          "Add main ingredients and cook according to time constraints",
-          "Season with soy sauce and adjust flavors",
-          "Serve hot with green onion garnish",
-        ],
-        tags: [...selectedRestrictions, "Asian-Inspired", "Healthy"],
-        confidence: 91,
-      },
-      {
-        id: "3",
-        name: `Classic ${validIngredients[0]} Comfort`,
-        description: `A traditional approach to ${validIngredients[0]} that's both satisfying and nutritious.`,
-        cookTime: selectedTime,
-        servings: servingSize,
-        difficulty: parseInt(cookTime) <= 30 ? "Easy" : "Medium",
-        ingredients: [
-          ...validIngredients.map((ing) => `2 cups ${ing.toLowerCase()}`),
-          "1 onion, diced",
-          "2 tbsp butter or oil",
-          "Herbs and spices blend",
-          "Vegetable or chicken broth",
-          "Fresh parsley for garnish",
-        ],
-        instructions: [
-          "Heat butter in a large pot over medium heat",
-          "Sauté onion until translucent, about 5 minutes",
-          "Add main ingredients and cook until starting to soften",
-          "Add broth and bring to a simmer",
-          "Cook for remaining time until tender",
-          "Season to taste and garnish with parsley",
-        ],
-        tags: [...selectedRestrictions, "Comfort Food", "Family-Friendly"],
-        confidence: 89,
-      },
-    ];
     const Recipe: GeneratedRecipe[] = [
       {
         id: generatedRecipe["generatedRecipe"].id,
@@ -262,8 +167,8 @@ export default function GenerateWithAIPage() {
           parseInt(generatedRecipe["generatedRecipe"].cookTime) <= 30
             ? "Easy"
             : parseInt(generatedRecipe["generatedRecipe"].cookTime) <= 60
-            ? "Medium"
-            : "Hard",
+              ? "Medium"
+              : "Hard",
         ingredients: generatedRecipe["generatedRecipe"].ingredients,
         instructions: generatedRecipe["generatedRecipe"].instructions,
         tags: generatedRecipe["generatedRecipe"].tags,
@@ -276,11 +181,73 @@ export default function GenerateWithAIPage() {
     setSelectedRecipe(Recipe[0]);
     setIsGenerating(false);
     setActiveTab("results");
+  }
+  const formatRecipe = (recipe: GeneratedRecipe) => {
+    return `*${recipe.name}*
+
+${recipe.description}
+
+*Maximum Time Needed:* ${recipe.cookTime}
+
+*Servings:* ${recipe.servings}
+
+*Ingredients:*
+
+${recipe.ingredients.map((ing) => `- ${ing}`).join("\n")}
+
+*Instructions:*
+
+${recipe.instructions.map((step, index) => `${index + 1}. ${step}`).join("\n")}
+          
+*${recipe.tags.join(", ")}*`
+  };
+  const copyRecipeToClipboard = async () => {
+    if (selectedRecipe) {
+      const formattedRecipe = formatRecipe(selectedRecipe);
+      await navigator.clipboard.writeText(formattedRecipe).then(() => {
+        toast.success("Recipe copied to clipboard!");
+      }).catch((err) => {
+        toast.error("Failed to copy recipe: " + err);
+      });
+    }
+  };
+
+  const downloadRecipeAsTextFile = () => {
+    if (selectedRecipe) {
+      const formattedRecipe = formatRecipe(selectedRecipe);
+      const blob = new Blob([formattedRecipe], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${selectedRecipe.name}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+  };
+  
+  const shareRecipe = async () => {
+    if (selectedRecipe) {
+      const formattedRecipe = formatRecipe(selectedRecipe);
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: selectedRecipe.name,
+            text: formattedRecipe,
+          });
+          toast.success("Recipe shared successfully!");
+        } catch (error) {
+          toast.error("Error sharing recipe: " + error);
+        }
+      }
+    }
   };
 
   const regenerateRecipe = () => {
     generateRecipe();
   };
+
 
   // Ensure the component has mounted before rendering
   useEffect(() => {
@@ -557,21 +524,21 @@ export default function GenerateWithAIPage() {
                   <CardContent className="space-y-4">
                     <div className="space-y-3 text-sm text-gray-300">
                       <div className="flex items-start gap-2">
-                        <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-green-400 rounded-full mt-2 shrink-0"></div>
                         <p>
                           Our AI analyzes thousands of recipes to create the
                           perfect match for your ingredients.
                         </p>
                       </div>
                       <div className="flex items-start gap-2">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 shrink-0"></div>
                         <p>
                           Dietary restrictions are carefully considered to
                           ensure safe and delicious meals.
                         </p>
                       </div>
                       <div className="flex items-start gap-2">
-                        <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 shrink-0"></div>
                         <p>
                           Cook times are optimized to help you create
                           restaurant-quality dishes at home.
@@ -630,11 +597,10 @@ export default function GenerateWithAIPage() {
                         <div
                           key={recipe.id}
                           onClick={() => setSelectedRecipe(recipe)}
-                          className={`p-3 rounded-lg cursor-pointer transition-colors border ${
-                            selectedRecipe?.id === recipe.id
-                              ? "bg-blue-600 text-white border-blue-600"
-                              : "bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-700"
-                          }`}
+                          className={`p-3 rounded-lg cursor-pointer transition-colors border ${selectedRecipe?.id === recipe.id
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "bg-gray-800 text-gray-300 hover:bg-gray-700 border-gray-700"
+                            }`}
                         >
                           <h4 className="text-sm mb-1">{recipe.name}</h4>
                           <div className="flex items-center gap-2 text-xs opacity-80">
@@ -679,25 +645,28 @@ export default function GenerateWithAIPage() {
                           </div>
                           <div className="flex gap-2">
                             <Button
+                              onClick={copyRecipeToClipboard}
                               variant="outline"
                               size="sm"
-                              className="bg-transparent border-gray-700 text-gray-400 hover:text-red-400"
+                              className="bg-transparent border-gray-700 text-gray-400 hover:text-gray-300"
                             >
-                              <Heart className="w-4 h-4" />
+                              <Copy className="w-4 h-4" />
                             </Button>
                             <Button
+                              onClick={downloadRecipeAsTextFile}
                               variant="outline"
                               size="sm"
                               className="bg-transparent border-gray-700 text-gray-400 hover:text-yellow-400"
                             >
-                              <Bookmark className="w-4 h-4" />
+                              <Download className="w-4 h-4" />
                             </Button>
                             <Button
+                              onClick={shareRecipe}
                               variant="outline"
                               size="sm"
                               className="bg-transparent border-gray-700 text-gray-400 hover:text-blue-400"
                             >
-                              <Share className="w-4 h-4" />
+                              <Share2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
@@ -775,27 +744,6 @@ export default function GenerateWithAIPage() {
                               )}
                             </ol>
                           </div>
-                        </div>
-
-                        <Separator className="bg-gray-700" />
-
-                        <div className="flex gap-4">
-                          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit Recipe
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="bg-transparent border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
-                          >
-                            Save to Collection
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="bg-transparent border-gray-700 text-gray-400 hover:bg-gray-800 hover:text-white"
-                          >
-                            Start Cooking
-                          </Button>
                         </div>
                       </CardContent>
                     </Card>

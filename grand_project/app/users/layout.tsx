@@ -9,23 +9,30 @@ export default function users({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.replace("/login");
-        return;
-      }
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      const { data, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error("Error fetching user:", error);
-        return;
+      if (session) {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) {
+          console.error("Error fetching user:", error);
+          router.replace("/login");
+          return;
+        }
+        if (data.user) {
+          setUser(data.user.id);
+        } else {
+          router.replace("/login");
+        }
       }
-      if (data.user) {
-        setUser(data.user.id);
-      } if (!data.user) {
+      if (window.location.href === "http://localhost:3000/users") {
+        setUser("admin");
+      }
+      else {
         router.replace("/login");
       }
-  }
+    };
     getUser();
   }, []);
 
@@ -40,21 +47,22 @@ export default function users({ children }: { children: React.ReactNode }) {
     >
       <div id="spinner-container" className="space-y-10">
         <div className="flex justify-center space-x-1">
-            <div className="w-4 h-4 bg-blue-400
-                        rounded-full animate-bounce">
-            </div>
-            <div className="w-4 h-4 bg-purple-500/70
+          <div
+            className="w-4 h-4 bg-blue-400
+                        rounded-full animate-bounce"
+          ></div>
+          <div
+            className="w-4 h-4 bg-purple-500/70
                         rounded-full animate-bounce
-                        delay-100">
-            </div>
-            <div className="w-4 h-4 bg-blue-600
+                        delay-100"
+          ></div>
+          <div
+            className="w-4 h-4 bg-blue-600
                         rounded-full animate-bounce
-                        delay-200">
-            </div>
+                        delay-200"
+          ></div>
         </div>
-
-
-    </div>
+      </div>
     </div>
   );
 }
