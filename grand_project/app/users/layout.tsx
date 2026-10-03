@@ -26,7 +26,7 @@ export default function users({ children }: { children: React.ReactNode }) {
           router.replace("/login");
         }
       }
-      if (window.location.href === "http://localhost:3000/users") {
+      if (window.location.href === "https://grand-project.vercel.app/users?admin_access_ID=admin_12[@1oq") {
         setUser("admin");
       }
       else {

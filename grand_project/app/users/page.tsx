@@ -262,7 +262,7 @@ ${recipe.instructions.map((step, index) => `${index + 1}. ${step}`).join("\n")}
       <div className="container mx-auto px-4 py-16">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl mb-4 bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl mb-4 bg-linear-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
             Generate with AI
           </h1>
           <p className="text-gray-400 text-lg max-w-3xl mx-auto">
@@ -476,7 +476,7 @@ ${recipe.instructions.map((step, index) => `${index + 1}. ${step}`).join("\n")}
                 </Card>
 
                 {/* Generate Button */}
-                <Card className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-blue-800">
+                <Card className="bg-linear-to-r from-blue-900/20 to-purple-900/20 border-blue-800">
                   <CardContent className="">
                     {isGenerating ? (
                       <div className="space-y-4">
@@ -491,7 +491,7 @@ ${recipe.instructions.map((step, index) => `${index + 1}. ${step}`).join("\n")}
                           onClick={generateRecipe}
                           disabled={!canGenerate()}
                           size="lg"
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4"
+                          className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4"
                         >
                           <Sparkles className="w-5 h-5 mr-2" />
                           Generate My Recipe
@@ -514,7 +514,7 @@ ${recipe.instructions.map((step, index) => `${index + 1}. ${step}`).join("\n")}
 
               {/* AI Assistant Sidebar */}
               <div className="space-y-6">
-                <Card className="bg-gradient-to-b from-purple-900/20 to-gray-900 border-purple-800">
+                <Card className="bg-linear-to-b from-purple-900/20 to-gray-900 border-purple-800">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-purple-400" />
@@ -716,7 +716,7 @@ ${recipe.instructions.map((step, index) => `${index + 1}. ${step}`).join("\n")}
                                     key={index}
                                     className="text-gray-300 flex items-start gap-2"
                                   >
-                                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></div>
                                     {ingredient}
                                   </li>
                                 )
@@ -735,7 +735,7 @@ ${recipe.instructions.map((step, index) => `${index + 1}. ${step}`).join("\n")}
                                     key={index}
                                     className="text-gray-300 flex gap-3"
                                   >
-                                    <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+                                    <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs shrink-0 mt-0.5">
                                       {index + 1}
                                     </span>
                                     {instruction}
